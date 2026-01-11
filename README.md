@@ -55,7 +55,11 @@ npm run dev
 -   **Homepage**: Open [http://localhost:3000](http://localhost:3000)
 -   **PDF Editor**: Open [http://localhost:3000/edit-pdf](http://localhost:3000/edit-pdf)
 
-### 4. Build for Production
+### 4. Running the App (Windows)
+For convenience, you can also use the included batch file:
+- Simply double-click **`run.bat`** in the root directory.
+
+### 5. Build for Production
 Create an optimized production build:
 
 ```bash
@@ -89,7 +93,8 @@ edit-pdf/
 │   └── tools-data.ts     # Configuration for available PDF tools
 │
 ├── stores/               # Global Zustand state management
-└── public/               # Static assets
+├── public/               # Static assets
+└── run.bat               # Windows startup utility
 ```
 
 ---
@@ -97,7 +102,6 @@ edit-pdf/
 ## � Security & Privacy
 
 -   **Local-Only**: All PDF processing happens client-side. No files are uploaded to any external server.
--   **Secure Config**: Comprehensive `.gitignore` ensures API keys and secrets are never committed.
 
 ---
 

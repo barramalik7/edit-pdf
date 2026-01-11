@@ -103,9 +103,11 @@ edit-pdf/
 ├── stores/
 │   └── editor-store.ts           # Global State
 │
-└── lib/
-    ├── tools-data.ts             # Homepage Configuration
-    └── utils.ts
+├── lib/
+│   ├── tools-data.ts             # Homepage Configuration
+│   └── utils.ts
+│
+└── run.bat                       # Windows execution script
 ```
 
 ---
@@ -121,6 +123,7 @@ edit-pdf/
 - [x] **Page Navigation**: Sidebar with thumbnails and selection logic.
 - [x] **Homepage**: Responsive landing page with "FluxDoc" branding.
 - [x] **Routing**: Split between Landing and Editor apps.
+- [x] **Dev Experience**: Added `run.bat` for quick local execution.
 
 ### Future Improvements
 - [ ] **Export**: Client-side PDF generation (merging Canvas edits into PDF).
