@@ -2,7 +2,7 @@
 
 FluxDoc is a powerful, client-heavy PDF editor built with Next.js 16, Fabric.js, and PDF.js. It features a modern, polished UI inspired by industry leaders, offering a seamless document editing experience entirely in the browser.
 
-![Project Screenshot](https://raw.githubusercontent.com/barramalik7/edit-pdf/main/public/hero.png)
+![Project Screenshot](<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/44907675-dc66-4935-864b-253659d23ce3" />)
 
 ---
 
