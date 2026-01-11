@@ -1,213 +1,118 @@
-# Project Plan: FluxDoc
+# FluxDoc: Project Plan & Workflow
 
-## 1. High-Level Architecture
-The application follows a **Client-Heavy (Thick Client)** architecture to provide a responsive "desktop-like" editing experience. All interactive rendering and state management occurs in the browser.
+## 1. Project Overview
+FluxDoc is a "thick-client" web-based PDF editor that performs all processing in the browser. It combines a static PDF rendering layer (PDF.js) with a dynamic interaction layer (Fabric.js) to allow users to annotate, edit, and manipulate PDF documents without server-side processing.
+
+---
+
+## 2. Technical Stack
+-   **Core Framework**: Next.js 16.1.1 (App Router)
+-   **Language**: TypeScript v5+
+-   **Styling**: Tailwind CSS v4 (using CSS-based configuration)
+-   **State Management**: Zustand + Immer
+-   **Rendering Engine**:
+    -   `react-pdf` (v10.3.0) for PDF rendering
+    -   `fabric` (v7.1.0) for interactive canvas layer
+-   **Icons**: `lucide-react`
+
+---
+
+## 3. Architecture & Routing
+
+### Routing Structure
+-   `/` (Homepage): Landing page with tool grid and feature showcase.
+-   `/edit-pdf` (Editor): The core PDF editing workspace.
 
 ### Core Architecture Layers
-1.  **Frontend (View)**: Next.js 14+ (App Router) with React components.
-2.  **State Layer**: Zustand (with Immer) for managing global store (`activeTool`, `selectedIds`, `annotations`, `pageDimensions`).
-3.  **Rendering Layer**: 
-    -   **Base**: Mozilla PDF.js (via `react-pdf`) for parsing and rendering the static PDF background.
-    -   **Interactive**: HTML5 Canvas overlay (**Fabric.js v6**) for handling interactive objects.
-4.  **Processing Layer (Future)**: Rust-based WASM module planned for parsing and binary reconstruction in later phases.
+1.  **View Layer**: Next.js App Router components.
+2.  **State Layer**: Global Zustand store managing document data, editor viewport, and history.
+3.  **Canvas Stack**:
+    -   **Base**: Static PDF render.
+    -   **Interaction**: Fabric.js canvas overlay synced with the PDF coordinate system.
 
 ---
 
-## 2. Technical Stack Specifications
+## 4. Implementation Workflow (Recreation Guide)
 
-### Framework & State
--   **Framework**: Next.js 14+ (App Router).
--   **Styling**: Tailwind CSS for atomic, hardware-accelerated transitions.
--   **State Management**: `Zustand` + `Immer`.
+### Step 1: Foundation & Setup
+1.  Initialize Next.js project with TypeScript.
+2.  Configure Tailwind CSS v4 with custom color tokens (`primary: #E5322D`).
+3.  Install core dependencies: `fabric`, `react-pdf`, `zustand`, `lucide-react`, `immer`.
 
-### Rendering & Editor Engine
--   **Base Rendering**: `react-pdf` (PDF.js wrapper).
--   **Canvas/Interaction**: Multi-layered stack (`PageContainer`):
-    -   *Bottom*: PDF Page (rendered by `react-pdf`).
-    -   *Middle*: `InteractionLayer` (Fabric.js canvas overlay).
-    -   *Top*: `EditOverlay` (Internal Fabric.js text editing).
+### Step 2: The Core PDF Viewer
+1.  **PDFRenderLayer**: Create a wrapper for `react-pdf`'s `Document` component.
+2.  **VirtualScroller**: Implement a virtualized list to efficiently render large documents.
+3.  **PageContainer**: Create a component to stack the PDF page and the Canvas layer.
+    -   *Key Logic*: Sync PDF DOM element dimensions with the Fabric canvas.
+
+### Step 3: Interactive Editor Engine
+1.  **Fabric Integration**: Initialize a Fabric canvas overlaying each PDF page.
+2.  **Tooling Logic**: Implement a "Tool Manager" in Zustand to switch between Select, Text, Draw, and Image modes.
+3.  **Synchronization**: Create a one-way sync bridge (`useCanvasSync`) to propagate state changes from Zustand to the Fabric canvas without causing render loops.
+
+### Step 4: UI Components & Panels
+1.  **Editor Layout**: Build a 3-pane layout (Header, Sidebar, Workspace).
+2.  **Property Panels**: Create context-aware sidebars (e.g., `TextFormatPanel`) that appear when objects are selected.
+3.  **Floating Toolbar**: Implement a floating action bar for quick tool access on the canvas.
+
+### Step 5: Homepage & Routing
+1.  **Components**: Build modular homepage sections (`Hero`, `ToolsGrid`, `Navbar`).
+2.  **Data**: Define available tools configuration (icons, routes, descriptions).
+3.  **Routing**:
+    -   Move `EditorLayout` to `app/edit-pdf/page.tsx`.
+    -   Create `app/page.tsx` composing the homepage components.
 
 ---
 
-## 3. Detailed Implementation Logic
-
-### A. The Editing Engine (Frontend)
-**Layer Stack (PageContainer):**
-1.  **PDF Layer**: Static SVG/Canvas rendering of the PDF page.
-2.  **Fabric Layer**: Transparent canvas for object selection, moving, and resizing.
-3.  **Annotation Sync**: 1-way synchronization from Zustand `annotations` store to Fabric.js objects using an `isSyncing` bridge to prevent update loops.
-
-**Coordinate System:**
--   **Dimensions**: Page dimensions are captured on load via `onPageLoadSuccess` and stored in Zustand.
--   **Coordinate Sync**: Fabric objects use the same coordinate space as the PDF page dimensions.
-
----
-
-## 4. Folder Structure
+## 5. Directory Structure
 ```text
 edit-pdf/
-├── app/                          # Next.js App Router
-│   ├── layout.tsx                # Root layout (fonts, providers)
-│   ├── page.tsx                  # Home page (editor entry)
-│   └── globals.css               # Tailwind + CSS variables
+├── app/
+│   ├── (root)
+│   │   ├── layout.tsx            # Global layout (fonts)
+│   │   └── page.tsx              # Homepage (Tools Grid)
+│   └── edit-pdf/
+│       └── page.tsx              # Editor Route
 │
 ├── components/
-│   ├── layout/                   # Structural components
-│   │   ├── EditorLayout.tsx      # Header + Workspace + Sidebar
-│   │   ├── GlobalHeader.tsx      # Sticky top bar
-│   │   └── PropertySidebar.tsx   # Right panel
+│   ├── home/                     # Homepage Components
+│   │   ├── Hero.tsx
+│   │   ├── Navbar.tsx
+│   │   ├── ToolsGrid.tsx
+│   │   └── ToolCard.tsx
 │   │
-│   ├── pdf/                      # PDF rendering
-│   │   ├── PDFRenderLayer.tsx    # Document/Page wrapper
-│   │   ├── VirtualScroller.tsx   # Virtualized page list
-│   │   └── PageContainer.tsx     # 3-layer stack per page
+│   ├── layout/                   # Editor Layouts
+│   │   ├── EditorLayout.tsx
+│   │   └── PropertySidebar.tsx
 │   │
-│   ├── editor/                   # Interactive editing
-│   │   ├── InteractionLayer.tsx  # Fabric.js canvas overlay
-│   │   └── FloatingToolbar.tsx   # Tool selection buttons
+│   ├── editor/                   # Fabric.js Logic
+│   │   └── InteractionLayer.tsx
 │   │
-│   └── panels/                   # Sidebar panels
-│       ├── TextFormatPanel.tsx   # Font/Size/Color controls
-│       └── ImageControlPanel.tsx # Interaction styles
+│   └── pdf/                      # PDF.js Logic
+│       ├── VirtualScroller.tsx
+│       └── PageContainer.tsx
 │
 ├── stores/
-│   └── editor-store.ts           # Zustand store (document, editor, history)
+│   └── editor-store.ts           # Global State
 │
-├── lib/
-│   ├── types.ts                  # TypeScript interfaces
-│   └── utils.ts                  # Helper functions
-│
-├── public/                       # Static assets
-└── .gitignore                    # Comprehensive security rules
+└── lib/
+    ├── tools-data.ts             # Homepage Configuration
+    └── utils.ts
 ```
 
 ---
 
-## 5. Application State Store (Zustand)
+## 6. Current Status & Roadmap
 
-```typescript
-interface AppState {
-  document: {
-    file: File | null;
-    pageCount: number;
-    pageDimensions: Record<number, { width: number; height: number }>;
-    annotations: Record<number, Annotation[]>;
-  };
-  editor: {
-    activeTool: 'SELECT' | 'TEXT' | 'IMAGE' | 'DRAW';
-    selectedIds: string[];
-    viewport: { 
-        scale: number; 
-        offsetX: number; 
-        offsetY: number; 
-        rotation: number; 
-    };
-  };
-  history: {
-    past: EditorAction[][];
-    future: EditorAction[][];
-  };
-}
-```
+### Completed Features
+- [x] **Project Setup**: Next.js 16 + Tailwind v4.
+- [x] **PDF Viewing**: Virtualized rendering with `react-pdf`.
+- [x] **Interactive Canvas**: Fabric.js integration for object manipulation.
+- [x] **Editor UI**: Professional 3-pane layout with property panels.
+- [x] **Homepage**: Responsive landing page with "FluxDoc" branding.
+- [x] **Routing**: Split between Landing and Editor apps.
 
----
-
-### Global Style Configuration (`globals.css`)
-Tailwind CSS v4 uses CSS-based configuration. All theme tokens are defined via the `@theme` directive:
-
-```css
-@theme {
-  --color-primary: #E5322D;
-  --color-background: #F5F5FA;
-  --color-surface: #FFFFFF;
-  --color-text-primary: #33333B;
-  --color-text-secondary: #666666;
-  
-  --shadow-card: 0 4px 6px rgba(0, 0, 0, 0.05);
-  --shadow-floating: 0 8px 24px rgba(0, 0, 0, 0.12);
-  
-  --font-sans: var(--font-inter), system-ui, sans-serif;
-}
-```
-
-
----
-
-## 7. Visual Architecture
-
-### UI Layout (ASCII)
-```text
-+-----------------------------------------------------------------------+
-|  FluxDoc Logo  |  Document Name        [ Undo ] [ Redo ]  [ Zoom +/- ] |
-+----------------+------------------------------------------+-----------+
-|                |                                          |           |
-|  [ Sidebar ]   |              [ PDF PAGE 1 ]              | PROPERTY  |
-|  (Optional     |                                          | PANEL     |
-|   Thumbnails)  |        +------------------------+        |           |
-|                |        |   Interaction Layer    |        | [ Font ]  |
-|                |        |   (Fabric.js Canvas)   |        | [ Size ]  |
-|                |        +------------------------+        | [ Color]  |
-|                |                                          |           |
-|                |              [ PDF PAGE 2 ]              |           |
-|                |                                          |           |
-|                |      +----------------------------+      |           |
-|                |      | [Select] [Text] [Img] [Draw]|      |           |
-+----------------+------------------------------------------+-----------+
-```
-
-### Component Hierarchy (Mermaid)
-```mermaid
-graph TD
-    App[Root Layout] --> EL[EditorLayout]
-    EL --> GH[GlobalHeader]
-    EL --> WS[Workspace]
-    EL --> PS[PropertySidebar]
-
-    WS --> FT[FloatingToolbar]
-    WS --> PRL[PDFRenderLayer]
-
-    PRL --> VS[VirtualScroller]
-    VS --> PC[PageContainer]
-
-    PC --> RP[react-pdf Page]
-    PC --> IL[InteractionLayer]
-
-    IL --> FAB[Fabric.js Canvas]
-    PS --> TFP[TextFormatPanel]
-    PS --> ICP[ImageControlPanel]
-
-    FAB <--> Store[(Zustand Store)]
-    TFP --> Store
-    ICP --> Store
-    FT --> Store
-```
-
----
-
-## 8. Project Roadmap (Status)
-
-### Phase 1: Foundation & Viewer [DONE]
-- [x] Next.js setup & Tailwind config.
-- [x] `react-pdf` integration with virtual scrolling.
-- [x] iLovePDF aesthetic implementation.
-
-### Phase 2: Interactive Editor Core [DONE]
-- [x] Viewport transform (Zoom) logic.
-- [x] Fabric.js `InteractionLayer` implementation.
-- [x] Selection model & drag-to-move support.
-
-### Phase 3: Tools & Property Panels [DONE]
-- [x] `FloatingToolbar` for tool switching.
-- [x] `TextFormatPanel` & `ImageControlPanel` for property editing.
-- [x] Object synchronization between Store and Canvas.
-
-### Phase 4: Polish & Stability [DONE]
-- [x] **Tailwind v4 Migration**: Moved design tokens to CSS `@theme` directive.
-- [x] **UI Redesign**: Polished shadows, borders, and background to match target designs.
-- [x] **TypeScript Stability**: Fixed property mismatches in `VirtualScroller` and `PageContainer`.
-- [x] **Security Audit**: Implemented comprehensive `.gitignore` to prevent API key leaks.
-
-### Phase 5: Persistence & WASM [PLANNED]
-- [ ] Rust/WASM integration for binary PDF modification.
-- [ ] Delta generation for incremental saves.
-- [ ] Export pipeline implementation.
+### Future Improvements
+- [ ] **Export**: Client-side PDF generation (merging Canvas edits into PDF).
+- [ ] **Authentication**: User accounts for saving projects.
+- [ ] **WASM Optimization**: Rust modules for heavy PDF processing.

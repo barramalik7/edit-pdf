@@ -1,73 +1,105 @@
 # FluxDoc - Intelligent PDF Editor
 
-FluxDoc is a powerful, client-heavy PDF editor built with Next.js, Fabric.js, and PDF.js. It features a modern, polished UI and high-performance rendering for a seamless document editing experience.
+FluxDoc is a powerful, client-heavy PDF editor built with Next.js 16, Fabric.js, and PDF.js. It features a modern, polished UI inspired by industry leaders, offering a seamless document editing experience entirely in the browser.
+
+![Project Screenshot](https://raw.githubusercontent.com/barramalik7/edit-pdf/main/public/hero.png)
 
 ---
 
 ## 🚀 Key Features
 
-- **High-Performance Rendering**: Powered by `PDF.js` for accurate document viewing.
-- **Interactive Layer**: Built with `Fabric.js` for object selection, text editing, and drawing.
-- **Polished UI/UX**: Modern design system using **Tailwind CSS v4** with custom design tokens.
-- **Local Processing**: Documents are processed entirely in the browser for maximum privacy.
-- **Responsive Workspace**: Flexible canvas scaling and zoom controls.
+-   **High-Performance Rendering**: Powered by `PDF.js` (via `react-pdf`) for accurate, virtualized document viewing.
+-   **Interactive Canvas**: Built with `Fabric.js` for robust object selection, text editing, drawing, and image manipulation.
+-   **Modern Design System**: Polished UI using **Tailwind CSS v4** with custom design tokens and smooth animations.
+-   **Responsive Homepage**: A full-featured landing page showcasing available tools, built with modular React components.
+-   **Local Processing**: Documents are processed entirely in the browser for maximum privacy—files never leave your device.
+-   **Split Architecture**: Dedicated routing for the Marketing site (`/`) and the Editor application (`/edit-pdf`).
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [Next.js 15+](https://nextjs.org) (App Router)
-- **Styling**: [Tailwind CSS v4](https://tailwindcss.com) (CSS-based `@theme` configuration)
-- **State Management**: [Zustand](https://github.com/pmndrs/zustand) + [Immer](https://immerjs.github.io/immer/)
-- **PDF Engine**: [PDF.js](https://mozilla.github.io/pdf.js/)
-- **Canvas Engine**: [Fabric.js](http://fabricjs.com/)
-- **Icons**: [Lucide React](https://lucide.dev/)
+-   **Framework**: [Next.js 16.1](https://nextjs.org) (App Router, Turbopack)
+-   **Language**: TypeScript v5+
+-   **Styling**: [Tailwind CSS v4](https://tailwindcss.com) (CSS-based `@theme` configuration)
+-   **State Management**: [Zustand](https://github.com/pmndrs/zustand) + [Immer](https://immerjs.github.io/immer/)
+-   **PDF Engine**: [PDF.js](https://mozilla.github.io/pdf.js/) (v4+)
+-   **Canvas Engine**: [Fabric.js](http://fabricjs.com/) (v6+)
+-   **Icons**: [Lucide React](https://lucide.dev/)
 
 ---
 
-## 🔒 Security & Privacy
+## �️ Getting Started
 
-We take document privacy and security seriously:
-- **Local-Only**: PDF processing and modification happen locally on the client side.
-- **Security Audit**: Completed a comprehensive security audit of project ignore rules.
-- **No Leaks**: Pre-configured `.gitignore` prevents accidental leaks of sensitive files, environment variables, or API keys.
+### 1. Prerequisites
+-   Node.js 18+ installed on your machine.
 
----
+### 2. Installation
+Clone the repository and install dependencies:
 
-## 🛠️ Getting Started
-
-### 1. Install Dependencies
 ```bash
+git clone https://github.com/barramalik7/edit-pdf.git
+cd edit-pdf
 npm install
 ```
 
-### 2. Run Development Server
+### 3. Run Development Server
+Start the local development server:
+
 ```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) to see the result.
 
-### 3. Build for Production
+-   **Homepage**: Open [http://localhost:3000](http://localhost:3000)
+-   **PDF Editor**: Open [http://localhost:3000/edit-pdf](http://localhost:3000/edit-pdf)
+
+### 4. Build for Production
+Create an optimized production build:
+
 ```bash
 npm run build
+npm start
 ```
 
 ---
 
-## 📄 Project Structure
+## � Project Structure
 
-- `/app`: Next.js App Router and global styles.
-- `/components/layout`: Structural UI components (Header, Sidebar, Workspace).
-- `/components/pdf`: PDF rendering and page container logic.
-- `/components/editor`: Fabric.js interaction layer and UI tools.
-- `/stores`: Global state management with Zustand.
-- `/lib`: Shared TypeScript types and utilities.
+```text
+edit-pdf/
+├── app/                  # Next.js App Router
+│   ├── (root)            # Homepage route
+│   └── edit-pdf/         # Editor application route
+│
+├── components/
+│   ├── home/             # Homepage sections (Hero, Navbar, ToolsGrid)
+│   ├── editor/           # Fabric.js interactive layer & tools
+│   ├── pdf/              # PDF.js rendering & virtualization
+│   ├── layout/           # Shared layouts (EditorLayout, Sidebar)
+│   └── panels/           # Property control panels
+│
+├── lib/
+│   └── tools-data.ts     # Configuration for available PDF tools
+│
+├── stores/               # Global Zustand state management
+└── public/               # Static assets
+```
 
 ---
 
-## 📈 Recent Updates
+## � Security & Privacy
 
-- ✅ **Tailwind v4 Migration**: Fully migrated design system to the new CSS-based configuration.
-- ✅ **UI Redesign**: Polished shadows, borders, and background to match premium design specifications.
-- ✅ **Stability Fixes**: Resolved critical TypeScript mismatches in virtual scrolling and page rendering.
-- ✅ **Comprehesive GitIgnore**: Enhanced security with detailed file exclusion rules.
+-   **Local-Only**: All PDF processing happens client-side. No files are uploaded to any external server.
+-   **Secure Config**: Comprehensive `.gitignore` ensures API keys and secrets are never committed.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1.  Fork the repository
+2.  Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
