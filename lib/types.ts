@@ -1,4 +1,4 @@
-export type ToolType = 'SELECT' | 'TEXT' | 'IMAGE' | 'DRAW';
+export type ToolType = 'SELECT' | 'TEXT' | 'IMAGE' | 'DRAW' | 'SHAPE';
 
 export interface ViewportTransform {
     scale: number;

@@ -29,6 +29,7 @@ interface EditorSlice {
         activeColor: string;
         activeFontSize: number;
         isProcessing: boolean;
+        currentPage: number;
     };
     setTool: (tool: ToolType) => void;
     selectObjects: (ids: string[]) => void;
@@ -36,6 +37,7 @@ interface EditorSlice {
     setColor: (color: string) => void;
     setFontSize: (size: number) => void;
     setProcessing: (isProcessing: boolean) => void;
+    setCurrentPage: (page: number) => void;
 }
 
 interface HistorySlice {
@@ -122,6 +124,7 @@ export const useEditorStore = create<AppState>()(
             activeColor: '#E5322D',
             activeFontSize: 20,
             isProcessing: false,
+            currentPage: 1,
         },
         setTool: (tool) =>
             set((state) => {
@@ -150,6 +153,10 @@ export const useEditorStore = create<AppState>()(
         setProcessing: (isProcessing) =>
             set((state) => {
                 state.editor.isProcessing = isProcessing;
+            }),
+        setCurrentPage: (page) =>
+            set((state) => {
+                state.editor.currentPage = page;
             }),
 
         // History Slice (Basic Implementation)

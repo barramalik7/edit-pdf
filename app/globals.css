@@ -9,6 +9,12 @@
   --color-text-primary: #33333B;
   --color-text-secondary: #666666;
 
+  /* Editor Dark Theme Colors */
+  --color-editor-bg: #333333;
+  --color-editor-sidebar: #2a2a2a;
+  --color-editor-header: #333333;
+  --color-editor-border: #444444;
+
   /* Shadows */
   --shadow-card: 0 4px 6px rgba(0, 0, 0, 0.05);
   --shadow-floating: 0 8px 24px rgba(0, 0, 0, 0.12);
@@ -65,4 +71,23 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* Dark Scrollbar for Editor */
+.editor-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.editor-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.editor-scrollbar::-webkit-scrollbar-thumb {
+  background: #555555;
+  border-radius: 3px;
+}
+
+.editor-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #666666;
 }

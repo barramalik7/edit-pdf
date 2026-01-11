@@ -10,8 +10,9 @@ FluxDoc is a powerful, client-heavy PDF editor built with Next.js 16, Fabric.js,
 
 -   **High-Performance Rendering**: Powered by `PDF.js` (via `react-pdf`) for accurate, virtualized document viewing.
 -   **Interactive Canvas**: Built with `Fabric.js` for robust object selection, text editing, drawing, and image manipulation.
+-   **Adaptive Editor States**: Clear separation between a **Light Upload state** and a **Dark Gemini-style Edit state** for zero-distraction editing.
+-   **Page Navigation Sidebar**: Integrated thumbnail browser for quick navigation through multi-page documents.
 -   **Modern Design System**: Polished UI using **Tailwind CSS v4** with custom design tokens and smooth animations.
--   **Responsive Homepage**: A full-featured landing page showcasing available tools, built with modular React components.
 -   **Local Processing**: Documents are processed entirely in the browser for maximum privacy—files never leave your device.
 -   **Split Architecture**: Dedicated routing for the Marketing site (`/`) and the Editor application (`/edit-pdf`).
 
@@ -75,7 +76,12 @@ edit-pdf/
 │   ├── home/             # Homepage sections (Hero, Navbar, ToolsGrid)
 │   ├── editor/           # Fabric.js interactive layer & tools
 │   ├── pdf/              # PDF.js rendering & virtualization
-│   ├── layout/           # Shared layouts (EditorLayout, Sidebar)
+│   ├── layout/           # Shared layouts
+│   │   ├── EditorLayout.tsx
+│   │   ├── GlobalHeader.tsx      # Adaptive Header (Light/Dark)
+│   │   ├── PageThumbnailsSidebar.tsx # Page browser
+│   │   ├── UploadView.tsx        # Upload interface
+│   │   └── Workspace.tsx         # Dark canvas area
 │   └── panels/           # Property control panels
 │
 ├── lib/

@@ -24,11 +24,12 @@ FluxDoc is a "thick-client" web-based PDF editor that performs all processing in
 -   `/edit-pdf` (Editor): The core PDF editing workspace.
 
 ### Core Architecture Layers
-1.  **View Layer**: Next.js App Router components.
-2.  **State Layer**: Global Zustand store managing document data, editor viewport, and history.
+1.  **View Layer**: Next.js App Router components with adaptive state switching.
+2.  **State Layer**: Global Zustand store managing document data, editor viewport, and history. Includes `hasFile` state for UI branching.
 3.  **Canvas Stack**:
     -   **Base**: Static PDF render.
     -   **Interaction**: Fabric.js canvas overlay synced with the PDF coordinate system.
+4.  **Theme Layer**: Conditional Light/Dark theme switching based on editor state.
 
 ---
 
@@ -51,9 +52,12 @@ FluxDoc is a "thick-client" web-based PDF editor that performs all processing in
 3.  **Synchronization**: Create a one-way sync bridge (`useCanvasSync`) to propagate state changes from Zustand to the Fabric canvas without causing render loops.
 
 ### Step 4: UI Components & Panels
-1.  **Editor Layout**: Build a 3-pane layout (Header, Sidebar, Workspace).
-2.  **Property Panels**: Create context-aware sidebars (e.g., `TextFormatPanel`) that appear when objects are selected.
-3.  **Floating Toolbar**: Implement a floating action bar for quick tool access on the canvas.
+1.  **Editor Layout**: Build an adaptive 2/3-pane layout.
+    -   *Upload State*: Minimal header (Light) + Centered Upload card.
+    -   *Edit State*: Dark Gemini-style header + Left Thumbnail Sidebar + Canvas Workspace.
+2.  **PageThumbnailsSidebar**: Implement a scrollable left sidebar for page navigation and selection.
+3.  **Adaptive Header**: Create a `GlobalHeader` that hides tools and switches to light theme when no file is loaded.
+4.  **Property Panels**: Create context-aware sidebars (e.g., `TextFormatPanel`) that appear when objects are selected.
 
 ### Step 5: Homepage & Routing
 1.  **Components**: Build modular homepage sections (`Hero`, `ToolsGrid`, `Navbar`).
@@ -83,6 +87,10 @@ edit-pdf/
 │   │
 │   ├── layout/                   # Editor Layouts
 │   │   ├── EditorLayout.tsx
+│   │   ├── GlobalHeader.tsx      # Adaptive Header
+│   │   ├── PageThumbnailsSidebar.tsx # NEW: Page navigation
+│   │   ├── UploadView.tsx        # Standard Upload UI
+│   │   ├── Workspace.tsx         # Dark Canvas Area
 │   │   └── PropertySidebar.tsx
 │   │
 │   ├── editor/                   # Fabric.js Logic
@@ -108,7 +116,9 @@ edit-pdf/
 - [x] **Project Setup**: Next.js 16 + Tailwind v4.
 - [x] **PDF Viewing**: Virtualized rendering with `react-pdf`.
 - [x] **Interactive Canvas**: Fabric.js integration for object manipulation.
-- [x] **Editor UI**: Professional 3-pane layout with property panels.
+- [x] **Dark theme Editor**: Gemini-style interface with centered toolbar.
+- [x] **State Separation**: Clear distinction between Upload (Light) and Edit (Dark) states.
+- [x] **Page Navigation**: Sidebar with thumbnails and selection logic.
 - [x] **Homepage**: Responsive landing page with "FluxDoc" branding.
 - [x] **Routing**: Split between Landing and Editor apps.
 
