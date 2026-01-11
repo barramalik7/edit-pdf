@@ -120,7 +120,7 @@ edit-pdf/
 - [x] **Interactive Canvas**: Fabric.js integration for object manipulation.
 - [x] **Dark theme Editor**: Gemini-style interface with centered toolbar.
 - [x] **State Separation**: Clear distinction between Upload (Light) and Edit (Dark) states.
-- [x] **Page Navigation**: Sidebar with thumbnails and selection logic.
+- [x] **Page Navigation**: Sidebar with real-time PDF thumbnails and selection logic.
 - [x] **Homepage**: Responsive landing page with "FluxDoc" branding.
 - [x] **Routing**: Split between Landing and Editor apps.
 - [x] **Dev Experience**: Added `run.bat` for quick local execution.

@@ -23,6 +23,7 @@ export const toolsData: Tool[] = [
             "Combine PDFs in the order you want with the easiest PDF merger available.",
         icon: Layers,
         href: "/merge-pdf",
+        allowMultiple: true,
     },
     {
         id: "split",

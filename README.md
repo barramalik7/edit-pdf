@@ -12,7 +12,7 @@ FluxDoc is a powerful, client-heavy PDF editor built with Next.js 16, Fabric.js,
 -   **High-Performance Rendering**: Powered by `PDF.js` (via `react-pdf`) for accurate, virtualized document viewing.
 -   **Interactive Canvas**: Built with `Fabric.js` for robust object selection, text editing, drawing, and image manipulation.
 -   **Adaptive Editor States**: Clear separation between a **Light Upload state** and a **Dark Gemini-style Edit state** for zero-distraction editing.
--   **Page Navigation Sidebar**: Integrated thumbnail browser for quick navigation through multi-page documents.
+-   **Page Navigation Sidebar**: Integrated thumbnail browser using real-time page rendering for quick navigation.
 -   **Modern Design System**: Polished UI using **Tailwind CSS v4** with custom design tokens and smooth animations.
 -   **Local Processing**: Documents are processed entirely in the browser for maximum privacy—files never leave your device.
 -   **Split Architecture**: Dedicated routing for the Marketing site (`/`) and the Editor application (`/edit-pdf`).

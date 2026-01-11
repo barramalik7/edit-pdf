@@ -2,8 +2,13 @@
 
 import { useEffect, useRef } from "react";
 import { useEditorStore } from "@/stores/editor-store";
-import { InteractionLayer } from "@/components/editor/InteractionLayer";
 import type { PDFPageProxy } from "pdfjs-dist";
+import dynamic from "next/dynamic";
+
+const InteractionLayer = dynamic(
+    () => import("@/components/editor/InteractionLayer").then((mod) => mod.InteractionLayer),
+    { ssr: false }
+);
 
 interface PageContainerProps {
     page: PDFPageProxy;

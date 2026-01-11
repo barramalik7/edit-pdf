@@ -2,12 +2,16 @@
 
 import { useEditorStore } from "@/stores/editor-store";
 import { GlobalHeader } from "./GlobalHeader";
-import { PageThumbnailsSidebar } from "./PageThumbnailsSidebar";
 import { UploadView } from "./UploadView";
 import dynamic from "next/dynamic";
 
 const Workspace = dynamic(
     () => import("./Workspace").then((mod) => mod.Workspace),
+    { ssr: false }
+);
+
+const PageThumbnailsSidebar = dynamic(
+    () => import("./PageThumbnailsSidebar").then((mod) => mod.PageThumbnailsSidebar),
     { ssr: false }
 );
 
@@ -24,7 +28,7 @@ export function EditorLayout() {
                     <UploadView />
                 ) : (
                     <>
-                        <PageThumbnailsSidebar pageCount={document.pageCount} />
+                        <PageThumbnailsSidebar />
                         <Workspace />
                     </>
                 )}

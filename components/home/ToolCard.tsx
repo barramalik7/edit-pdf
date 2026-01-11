@@ -8,6 +8,7 @@ export interface Tool {
     icon: LucideIcon;
     href: string;
     isNew?: boolean;
+    allowMultiple?: boolean;
 }
 
 interface ToolCardProps {

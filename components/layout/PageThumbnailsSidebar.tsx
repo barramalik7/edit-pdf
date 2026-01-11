@@ -1,16 +1,29 @@
 "use client";
 
 import { useEditorStore } from "@/stores/editor-store";
-import { LayoutGrid, Plus } from "lucide-react";
+import { LayoutGrid } from "lucide-react";
+import { Document, Page, pdfjs } from "react-pdf";
+import { useState, useEffect, useCallback } from "react";
 
-interface PageThumbnailsSidebarProps {
-    pageCount?: number;
-}
+// Configure worker (ensure it matches the version used in other parts of the app)
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-export function PageThumbnailsSidebar({ pageCount = 5 }: PageThumbnailsSidebarProps) {
-    const { editor, setCurrentPage } = useEditorStore();
+export function PageThumbnailsSidebar() {
+    const { editor, document, setCurrentPage } = useEditorStore();
     const currentPage = editor.currentPage ?? 1;
-    const pages = Array.from({ length: pageCount }, (_, i) => i + 1);
+    const file = document.file;
+    const [numPages, setNumPages] = useState<number>(0);
+
+    // Sync local numPages with store if available
+    useEffect(() => {
+        if (document.pageCount > 0) {
+            setNumPages(document.pageCount);
+        }
+    }, [document.pageCount]);
+
+    const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
+        setNumPages(numPages);
+    }, []);
 
     return (
         <aside className="w-40 bg-editor-sidebar border-r border-editor-border flex flex-col shrink-0">
@@ -26,44 +39,64 @@ export function PageThumbnailsSidebar({ pageCount = 5 }: PageThumbnailsSidebarPr
 
             {/* Page Thumbnails */}
             <div className="flex-1 overflow-y-auto p-3 space-y-3 editor-scrollbar">
-                {pages.map((page) => (
-                    <div
-                        key={page}
-                        onClick={() => setCurrentPage(page)}
-                        className="group cursor-pointer flex flex-col items-center"
+                {file ? (
+                    <Document
+                        file={file}
+                        onLoadSuccess={onDocumentLoadSuccess}
+                        className="flex flex-col gap-3"
+                        loading={
+                            <div className="text-xs text-gray-500 text-center py-4">Loading...</div>
+                        }
+                        error={
+                            <div className="text-xs text-red-400 text-center py-4">Error loading PDF</div>
+                        }
                     >
-                        <div
-                            className={`relative w-full aspect-[1/1.414] bg-white transition-all duration-200 ${currentPage === page
-                                    ? "ring-2 ring-primary shadow-lg"
-                                    : "opacity-70 group-hover:opacity-100"
-                                }`}
-                        >
-                            {/* Mock content lines for thumbnail */}
-                            <div className="absolute top-3 left-3 right-3 h-1.5 bg-gray-200 rounded-sm"></div>
-                            <div className="absolute top-6 left-3 right-6 h-1.5 bg-gray-200 rounded-sm"></div>
-                            <div className="absolute top-9 left-3 right-8 h-1.5 bg-gray-200 rounded-sm"></div>
+                        {Array.from(new Array(numPages), (el, index) => {
+                            const pageNum = index + 1;
+                            const isCurrent = currentPage === pageNum;
 
-                            {/* Page number badge */}
-                            <div className="absolute bottom-1 right-1 bg-black/50 text-white text-[10px] px-1 rounded">
-                                {page}
-                            </div>
-                        </div>
-                        <span
-                            className={`mt-1.5 text-xs ${currentPage === page
-                                    ? "text-primary font-bold"
-                                    : "text-gray-500"
-                                }`}
-                        >
-                            Page {page}
-                        </span>
+                            return (
+                                <div
+                                    key={pageNum}
+                                    onClick={() => setCurrentPage(pageNum)}
+                                    className="group cursor-pointer flex flex-col items-center"
+                                >
+                                    <div
+                                        className={`relative w-full bg-white transition-all duration-200 overflow-hidden rounded-sm ${isCurrent
+                                                ? "ring-2 ring-primary shadow-lg"
+                                                : "opacity-70 group-hover:opacity-100"
+                                            }`}
+                                    >
+                                        <Page
+                                            pageNumber={pageNum}
+                                            width={134} // Sidebar width (160px) - padding (24px) - border adjustment
+                                            renderTextLayer={false}
+                                            renderAnnotationLayer={false}
+                                            className="pointer-events-none" // Let the parent div handle clicks
+                                        />
+
+                                        {/* Page number badge */}
+                                        <div className="absolute bottom-1 right-1 bg-black/50 text-white text-[10px] px-1 rounded z-10">
+                                            {pageNum}
+                                        </div>
+                                    </div>
+                                    <span
+                                        className={`mt-1.5 text-xs ${isCurrent
+                                                ? "text-primary font-bold"
+                                                : "text-gray-500"
+                                            }`}
+                                    >
+                                        Page {pageNum}
+                                    </span>
+                                </div>
+                            );
+                        })}
+                    </Document>
+                ) : (
+                    <div className="text-xs text-gray-500 text-center mt-10">
+                        No PDF uploaded
                     </div>
-                ))}
-
-                {/* Add Page Button */}
-                <button className="w-full border border-dashed border-gray-600 rounded-lg p-3 flex flex-col items-center justify-center text-gray-500 hover:border-primary hover:text-primary transition-colors">
-                    <Plus className="w-5 h-5 mb-1" />
-                    <span className="text-xs font-medium">Add Page</span>
-                </button>
+                )}
             </div>
         </aside>
     );

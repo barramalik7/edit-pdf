@@ -4,16 +4,34 @@ import { useRef } from "react";
 import { useEditorStore } from "@/stores/editor-store";
 import { UploadCloud } from "lucide-react";
 
-export function UploadView() {
+export function UploadView({
+    onFilesSelected,
+    allowMultiple = false
+}: {
+    onFilesSelected?: (files: File[]) => void;
+    allowMultiple?: boolean;
+}) {
     const { setDocument, setProcessing } = useEditorStore();
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const processFile = async (file: File) => {
-        if (file.type !== 'application/pdf') {
-            alert("Please upload a PDF file.");
+    const processFiles = async (files: File[]) => {
+        if (files.length === 0) return;
+
+        // Validation
+        const invalidFiles = files.filter(f => f.type !== 'application/pdf');
+        if (invalidFiles.length > 0) {
+            alert("Please upload valid PDF files.");
             return;
         }
 
+        // If external handler is provided, use it (e.g., for Merge tool)
+        if (onFilesSelected) {
+            onFilesSelected(files);
+            return;
+        }
+
+        // Default behavior: Process the first file for the Editor
+        const file = files[0];
         setProcessing(true);
 
         try {
@@ -50,17 +68,17 @@ export function UploadView() {
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            processFile(file);
+        const files = Array.from(e.target.files || []);
+        if (files.length > 0) {
+            processFiles(files);
         }
     };
 
     const handleDrop = (e: React.DragEvent) => {
         e.preventDefault();
-        const file = e.dataTransfer.files[0];
-        if (file) {
-            processFile(file);
+        const files = Array.from(e.dataTransfer.files);
+        if (files.length > 0) {
+            processFiles(files);
         }
     };
 
@@ -74,9 +92,11 @@ export function UploadView() {
                 <div className="w-20 h-20 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-6">
                     <UploadCloud className="w-10 h-10" />
                 </div>
-                <h2 className="text-2xl font-bold text-text-primary mb-3">Upload your PDF</h2>
+                <h2 className="text-2xl font-bold text-text-primary mb-3">
+                    {allowMultiple ? "Upload PDF files" : "Upload your PDF"}
+                </h2>
                 <p className="text-text-secondary mb-8 leading-relaxed">
-                    Drag and drop your document here, or click to browse files.
+                    Drag and drop your document{allowMultiple ? "s" : ""} here, or click to browse.
                     <br />
                     We process everything locally in your browser.
                 </p>
@@ -84,6 +104,7 @@ export function UploadView() {
                 <input
                     type="file"
                     accept="application/pdf"
+                    multiple={allowMultiple}
                     className="hidden"
                     ref={inputRef}
                     onChange={handleFileChange}
@@ -93,7 +114,7 @@ export function UploadView() {
                     onClick={() => inputRef.current?.click()}
                     className="bg-primary hover:bg-red-600 text-white px-8 py-3 rounded-xl font-semibold transition-transform active:scale-95 shadow-lg shadow-primary/20"
                 >
-                    Select Document
+                    Select Document{allowMultiple ? "s" : ""}
                 </button>
             </div>
         </div>
