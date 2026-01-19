@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useEditorStore } from "@/stores/editor-store";
 import type { PDFPageProxy } from "pdfjs-dist";
 import dynamic from "next/dynamic";
+import { useIntersectionObserver } from "@/lib/hooks/useIntersectionObserver";
 
 const InteractionLayer = dynamic(
     () => import("@/components/editor/InteractionLayer").then((mod) => mod.InteractionLayer),
@@ -21,10 +22,38 @@ export function PageContainer({ page, pageIndex, scale }: PageContainerProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const pdfCanvasRef = useRef<HTMLCanvasElement>(null);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const renderTaskRef = useRef<any>(null);
 
-    // Render PDF to canvas
+    // Bolt Optimization: Lazy Load Pages
+    // We use a large rootMargin to start rendering pages before they come into view
+    // so scrolling remains smooth.
+    const isVisible = useIntersectionObserver(containerRef, {
+        rootMargin: "200px"
+    });
+
+    const [hasLoaded, setHasLoaded] = useState(false);
+
+    // Once visible, keep loaded
     useEffect(() => {
+        if (isVisible && !hasLoaded) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setHasLoaded(true);
+        }
+    }, [isVisible, hasLoaded]);
+
+    // Ensure dimensions are updated even if not rendered (fast operation)
+    useEffect(() => {
+        if (!page) return;
+        const viewport = page.getViewport({ scale });
+        updatePageDimensions(pageIndex, viewport.width, viewport.height);
+    }, [page, scale, pageIndex, updatePageDimensions]);
+
+    // Render PDF to canvas (Expensive)
+    useEffect(() => {
+        // Only render if we have decided to load this page
+        if (!hasLoaded) return;
+
         const renderPdf = async () => {
             if (!page || !pdfCanvasRef.current) return;
 
@@ -32,7 +61,7 @@ export function PageContainer({ page, pageIndex, scale }: PageContainerProps) {
             if (renderTaskRef.current) {
                 try {
                     renderTaskRef.current.cancel();
-                } catch (e) {
+                } catch (_e) {
                     // Ignore cancellation errors
                 }
             }
@@ -46,8 +75,9 @@ export function PageContainer({ page, pageIndex, scale }: PageContainerProps) {
             canvas.height = viewport.height;
             canvas.width = viewport.width;
 
-            // Store dimensions in Zustand
-            updatePageDimensions(pageIndex, viewport.width, viewport.height);
+            // Note: dimensions are also updated in the separate effect above,
+            // but keeping it here doesn't hurt.
+            // updatePageDimensions(pageIndex, viewport.width, viewport.height);
 
             const renderContext = {
                 canvasContext: context,
@@ -55,13 +85,15 @@ export function PageContainer({ page, pageIndex, scale }: PageContainerProps) {
                 canvas: canvas
             };
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const renderTask = page.render(renderContext as any);
             renderTaskRef.current = renderTask;
 
             try {
                 await renderTask.promise;
-            } catch (error: any) {
-                if (error.name === 'RenderingCancelledException') {
+            } catch (error: unknown) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                if ((error as any).name === 'RenderingCancelledException') {
                     // Ignore cancelled renders
                     return;
                 }
@@ -75,14 +107,14 @@ export function PageContainer({ page, pageIndex, scale }: PageContainerProps) {
             if (renderTaskRef.current) {
                 try {
                     renderTaskRef.current.cancel();
-                } catch (e) {
+                } catch (_e) {
                     // Ignore
                 }
             }
         };
-    }, [page, scale, pageIndex, updatePageDimensions]);
+    }, [page, scale, pageIndex, updatePageDimensions, hasLoaded]);
 
-    // Calculate dimensions for container
+    // Calculate dimensions for container (always needed for scrollbar)
     const viewport = page.getViewport({ scale });
 
     return (
@@ -94,16 +126,20 @@ export function PageContainer({ page, pageIndex, scale }: PageContainerProps) {
                 height: viewport.height
             }}
         >
-            {/* Layer 1: PDF Static Render */}
-            <canvas
-                ref={pdfCanvasRef}
-                className="absolute top-0 left-0 z-0 pointer-events-none"
-            />
+            {hasLoaded && (
+                <>
+                    {/* Layer 1: PDF Static Render */}
+                    <canvas
+                        ref={pdfCanvasRef}
+                        className="absolute top-0 left-0 z-0 pointer-events-none"
+                    />
 
-            {/* Layer 2: Fabric.js Interactive Layer */}
-            <div className="absolute inset-0 z-10">
-                <InteractionLayer pageIndex={pageIndex} />
-            </div>
+                    {/* Layer 2: Fabric.js Interactive Layer */}
+                    <div className="absolute inset-0 z-10">
+                        <InteractionLayer pageIndex={pageIndex} />
+                    </div>
+                </>
+            )}
         </div>
     );
 }
