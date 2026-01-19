@@ -1,0 +1,3 @@
+## 2025-02-14 - Lazy Loading PDF Pages
+**Learning:** The initial implementation of `VirtualScroller` rendered all PDF pages immediately, causing massive CPU spikes on large documents. Specifically, decoupling the *layout calculation* (cheap) from the *pixel rendering* (expensive) allowed us to use correct-sized placeholders while deferring the heavy work until the user actually scrolls to the content.
+**Action:** Always check if "virtual" lists are actually virtualizing or just rendering everything. Use `IntersectionObserver` with a latch (render once visible) for a lightweight alternative to full virtualization libraries when item heights are known or calculable.
